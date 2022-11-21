@@ -20,7 +20,10 @@ CREATE TABLE scalping_quiz
 (
     id             INTEGER PRIMARY KEY DEFAULT nextval('global_seq'),
     question       TEXT NOT NULL,
-    answer_correct TEXT NOT NULL
+    answer_correct TEXT NOT NULL,
+    optionOne        TEXT,
+    optionTwo        TEXT,
+    optionThree      TEXT
 );
 CREATE TABLE scalping_trivia
 (

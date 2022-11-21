@@ -14,11 +14,13 @@ import javax.validation.constraints.NotBlank;
 @Table(name = "scalping_quiz")
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class Question extends AbstractBaseEntity {
 
     @Column(name = "id", nullable = false)
     @NotBlank
-    private int id;
+    private long id;
     @Column(name = "question", nullable = false)
     @NotBlank
     private String question;
@@ -42,17 +44,17 @@ public class Question extends AbstractBaseEntity {
     public void setCorrectAnswer(String correctAnswer) {
         this.correctAnswer = correctAnswer;
     }
-    //    @Column(name = "option2")
-//    @NotBlank
-//    private String optionOne;
-//
-//    @Column(name = "option1")
-//    @NotBlank
-//    private String optionTwo;
-//
-//    @Column(name = "option3")
-//    @NotBlank
-//    private String optionThree;
+    @Column(name = "option2")
+    @NotBlank
+    private String optionOne;
+
+    @Column(name = "option1")
+    @NotBlank
+    private String optionTwo;
+
+    @Column(name = "option3")
+    @NotBlank
+    private String optionThree;
 
     @Override
     public String toString() {

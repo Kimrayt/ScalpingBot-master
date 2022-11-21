@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
 public class User extends AbstractBaseEntity {
     @Column(name = "chat_id", unique = true, nullable = false)
     @NotNull
-    private Integer chatId;
+    private long chatId;
 
     @Column(name = "name", unique = true, nullable = false)
     @NotBlank
@@ -41,7 +41,7 @@ public class User extends AbstractBaseEntity {
     @NotBlank
     private State botState;
 
-    public User(int chatId) {
+    public User(long chatId) {
         this.chatId = chatId;
         this.name = String.valueOf(chatId);
         this.score = 0;

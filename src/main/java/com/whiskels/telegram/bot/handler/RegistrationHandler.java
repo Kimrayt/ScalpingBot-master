@@ -77,7 +77,7 @@ public class RegistrationHandler implements Handler {
         inlineKeyboardMarkup.setKeyboard(List.of(inlineKeyboardButtonsRowOne));
 
         SendMessage sm = createMessageTemplate(user);
-        sm.setText(String.format("Вы ввели: %s%n Если это правильно - нажмите кнопку", user.getName()));
+        sm.setText(String.format("Вы ввели: %s%n Если это правильно \\- нажмите кнопку", user.getName()));
         sm.setReplyMarkup(inlineKeyboardMarkup);
         return List.of(sm);
     }

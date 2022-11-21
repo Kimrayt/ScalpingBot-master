@@ -39,7 +39,8 @@ public class Bot extends TelegramLongPollingBot {
                     try {
                         executeWithExceptionCheck((SendMessage) response);
                     } catch (TelegramApiException e) {
-                        throw new RuntimeException(e);
+                        System.out.println("AAAAA");
+                        e.printStackTrace();
                     }
                 }
             });

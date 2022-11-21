@@ -35,27 +35,28 @@ public class UpdateReceiver {
 
                 final Message message = update.getMessage();
 
-                final int chatId = Math.toIntExact(message.getFrom().getId());
+                final long chatId = message.getFrom().getId();
 
                 final User user = userRepository.getByChatId(chatId)
                         .orElseGet(() -> userRepository.save(new User(chatId)));
-                user.setBotState(State.LEARNING_TRIVIA);
 
                 return getHandlerByState(user.getBotState()).handle(user, message.getText());
 
             } else if (update.hasCallbackQuery()) {
                 final CallbackQuery callbackQuery = update.getCallbackQuery();
-                final int chatId = Math.toIntExact(callbackQuery.getFrom().getId());
+                final long chatId = callbackQuery.getFrom().getId();
                 final User user = userRepository.getByChatId(chatId)
                         .orElseGet(() -> userRepository.save(new User(chatId)));
 
                 return getHandlerByCallBackQuery(callbackQuery.getData()).handle(user, callbackQuery.getData());
             }
-
+            System.out.println("AAAAA");
             throw new UnsupportedOperationException();
         } catch (UnsupportedOperationException e) {
+            e.printStackTrace();
             return Collections.emptyList();
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

@@ -30,7 +30,7 @@ public class StartHandler implements Handler {
     public List<PartialBotApiMethod<? extends Serializable>> handle(User user, String message) {
         SendMessage welcomeMessage = createMessageTemplate(user);
         welcomeMessage.setText(EmojiParser.parseToUnicode(String.format(
-                        "U+1F44B Привет! Я *%s*%nI, я здесь, чтобы помочь тебе узнать, что такое скальпинг", botUsername)));
+                        ":wave: Привет! Я *%s*%nI, я здесь, чтобы помочь тебе узнать, что такое скальпинг", botUsername)));
         SendMessage registrationMessage = createMessageTemplate(user);
         registrationMessage.setText("Прежде чем мы начнем, расскажи, как тебя зовут?");
         user.setBotState(State.ENTER_NAME);

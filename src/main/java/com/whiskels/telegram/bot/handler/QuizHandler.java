@@ -17,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.io.Serializable;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class QuizHandler implements Handler {
     public static final String QUIZ_START = "/quiz_start";
     public static int currentQuestion = 0;
     // Answer options
-    private static final List<String> OPTIONS = List.of("Далее", "Далее", "Далее", "Далее");
+    private ArrayList<String> OPTIONS = new ArrayList<>(Arrays.asList("Далее", "Далее", "Далее", "Далее"));
 
     private final JpaUserRepository userRepository;
     private final JpaQuestionRepository questionRepository;
@@ -86,7 +87,7 @@ public class QuizHandler implements Handler {
 
         inlineKeyboardMarkup.setKeyboard(List.of(inlineKeyboardButtonsRowOne));
         SendMessage sm = createMessageTemplate(user);
-        sm.setText(String.format("Incorrect!%nYou scored *%d* points!", currentScore));
+        sm.setText(String.format("Неверно!%nВы заработали *%d* баллов!", currentScore));
         sm.setReplyMarkup(inlineKeyboardMarkup);
         return List.of(sm);
     }
@@ -98,86 +99,95 @@ public class QuizHandler implements Handler {
         return nextQuestion(user);
     }
 
-//    private List<PartialBotApiMethod<? extends Serializable>> nextQuestion(User user) {
-//        Trivia question = questionRepository.getNextTrivia();
-//
-//        // Getting list of available answers
-//        List<String> options = new ArrayList<>(List.of(question.getCorrectAnswer(), question.getOptionOne()));
-//
-//        // Creating message by starting with defining the question
-//        StringBuilder sb = new StringBuilder();
-//        sb.append('*')
-//                .append(question.getQuestion())
-//                .append("*\n\n");
-//
-//        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-//
-//        // Create two lines of buttons
-//        List<InlineKeyboardButton> inlineKeyboardButtonsRowOne = new ArrayList<>();
-//        List<InlineKeyboardButton> inlineKeyboardButtonsRowTwo = new ArrayList<>();
-//
-//        // Define message and add callback data to the buttons
-//        for (int i = 0; i < options.size(); i++) {
-//            InlineKeyboardButton button = new InlineKeyboardButton();
-//
-//            final String callbackData = options.get(i).equalsIgnoreCase(question.getCorrectAnswer()) ? QUIZ_CORRECT : QUIZ_INCORRECT;
-//
-//            button.setText(OPTIONS.get(i));
-//            button.setCallbackData(String.format("%s %d", callbackData, question.getId()));
-//
-//            if (i < 2) {
-//                inlineKeyboardButtonsRowOne.add(button);
-//            } else {
-//                inlineKeyboardButtonsRowTwo.add(button);
-//            }
-//            sb.append(OPTIONS.get(i) + ". " + options.get(i))
-//                    .append("\n");
-//        }
-//
-//        inlineKeyboardMarkup.setKeyboard(List.of(inlineKeyboardButtonsRowOne, inlineKeyboardButtonsRowTwo));
-//        SendMessage sm = createMessageTemplate(user);
-//        sm.setText(sb.toString());
-//        sm.setReplyMarkup(inlineKeyboardMarkup);
-//        return List.of(sm);
-//    }
     private List<PartialBotApiMethod<? extends Serializable>> nextQuestion(User user) throws SQLException {
-
-        Connection con= DriverManager.getConnection();
-        PreparedStatement pstmt = con.prepareStatement("SELECT * FROM scalping_quiz WHERE id>? LIMIT 1");
-        pstmt.setInt(1, currentQuestion);
-        ResultSet rs = pstmt.executeQuery();
-        rs.next();
+        Connection con= null;
+        try {
+            con = DriverManager.getConnection("jdbc:postgresql://ec2-176-34-215-248.eu-west-1.compute.amazonaws.com:5432/dfl2b8qerhh71p","bnxoafccsirgwj","7fb3596cea18f7a17a73ebdadc6b2a05ba634022cf38022d41ae7522b37c542b");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        assert con != null;
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = con.prepareStatement("SELECT * FROM scalping_quiz WHERE id>? LIMIT 1");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            assert pstmt != null;
+            pstmt.setInt(1, currentQuestion);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        ResultSet rs = null;
+        try {
+            rs = pstmt.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            assert rs != null;
+            rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         Question question = new Question();
-        currentQuestion = rs.getInt(1);
+        List<String> options;
+        try {
+            currentQuestion = rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        StringBuilder sb = new StringBuilder();
         if (currentQuestion <=6) {
-            question.setId(rs.getInt(1));
-            question.setQuestion(rs.getString(2));
-            question.setCorrectAnswer(rs.getString(3));
+            System.out.println(currentQuestion);
+            try {
+                question.setId(rs.getInt(1));
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                question.setQuestion(rs.getString(2));
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                question.setCorrectAnswer(rs.getString(3));
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            options = new ArrayList<>(List.of(question.getCorrectAnswer()));
+
+            sb.append(EmojiParser.parseToUnicode(question.getQuestion()));
         }
         else {
+            System.out.println(currentQuestion);
+            OPTIONS.set(0, "A");
+            OPTIONS.set(1, "B");
+            OPTIONS.set(2, "C");
+            OPTIONS.set(3, "D");
             question.setId(rs.getInt(1));
             question.setQuestion(rs.getString(2));
             question.setCorrectAnswer(rs.getString(3));
+            question.setOptionOne(rs.getString(4));
+            question.setOptionTwo(rs.getString(5));
+            question.setOptionThree(rs.getString(6));
+            options = new ArrayList<>(List.of(question.getCorrectAnswer(), question.getOptionOne(), question.getOptionTwo(), question.getOptionThree()));
+            sb.append(question.getQuestion());
+            System.out.println(sb);
         }
 
-        // Getting list of available answers
-        List<String> options = new ArrayList<>(List.of(question.getCorrectAnswer()));
-
-        // Creating message by starting with defining the question
-        StringBuilder sb = new StringBuilder();
-        sb.append(EmojiParser.parseToUnicode(question.getQuestion()));
+        System.out.println(sb);
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
-        // Create two lines of buttons
         List<InlineKeyboardButton> inlineKeyboardButtonsRowOne = new ArrayList<>();
         List<InlineKeyboardButton> inlineKeyboardButtonsRowTwo = new ArrayList<>();
 
-        // Define message and add callback data to the buttons
         for (int i = 0; i < options.size(); i++) {
             InlineKeyboardButton button = new InlineKeyboardButton();
 
-            final String callbackData = options.get(i).equalsIgnoreCase(question.getCorrectAnswer()) ? QUIZ_CORRECT : QUIZ_INCORRECT;
+            String callbackData = options.get(i).equalsIgnoreCase(question.getCorrectAnswer()) ? QUIZ_CORRECT : QUIZ_INCORRECT;
 
             button.setText(OPTIONS.get(i));
             button.setCallbackData(String.format("%s %d", callbackData, question.getId()));
@@ -187,20 +197,16 @@ public class QuizHandler implements Handler {
             } else {
                 inlineKeyboardButtonsRowTwo.add(button);
             }
-//            sb.append(OPTIONS.get(i)).append(". ").append(options.get(i))
-//                    .append("\n");
+            if (currentQuestion >6) {
+            sb.append(OPTIONS.get(i)).append("\\. ").append(options.get(i))
+                    .append("\n");
+            }
         }
 
         inlineKeyboardMarkup.setKeyboard(List.of(inlineKeyboardButtonsRowOne, inlineKeyboardButtonsRowTwo));
         SendMessage sm = createMessageTemplate(user);
         sm.setText(sb.toString());
         sm.setReplyMarkup(inlineKeyboardMarkup);
-        if (currentQuestion>6){
-            OPTIONS.set(1, "A");
-            OPTIONS.set(2, "B");
-            OPTIONS.set(3, "C");
-            OPTIONS.set(4, "D");
-        }
 
         return List.of(sm);
     }
