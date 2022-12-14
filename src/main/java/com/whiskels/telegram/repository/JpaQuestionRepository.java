@@ -9,7 +9,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 
-import static com.whiskels.telegram.bot.handler.QuizHandler.currentQuestion;
 
 public interface JpaQuestionRepository extends JpaRepository<Question, Integer> {
 

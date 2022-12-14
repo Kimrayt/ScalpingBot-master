@@ -5,5 +5,6 @@ public enum State {
     START,
     ENTER_NAME,
     LEARNING_TRIVIA,
+    CONTACT_MANAGER,
     PLAYING_QUIZ,
 }

@@ -21,16 +21,13 @@ public class HelpHandler implements Handler {
 
     @Override
     public List<PartialBotApiMethod<? extends Serializable>> handle(User user, String message) {
-        // Create button to change name
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-
         List<InlineKeyboardButton> inlineKeyboardButtonsRowOne = List.of(
                 createInlineKeyboardButton("Сменить имя", NAME_CHANGE));
-
         inlineKeyboardMarkup.setKeyboard(List.of(inlineKeyboardButtonsRowOne));
         SendMessage sm = createMessageTemplate(user);
         sm.setText(String.format("" +
-                "Вы просили помощи, %s? Вот она!", user.getName()));
+                "Вы просили помощи, %s? Вот она\\!", user.getName()));
         sm.setReplyMarkup(inlineKeyboardMarkup);
         return List.of(sm);
     }

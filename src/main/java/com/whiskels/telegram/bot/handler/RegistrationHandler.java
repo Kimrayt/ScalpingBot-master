@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.io.Serializable;
 import java.util.List;
 
-import static com.whiskels.telegram.bot.handler.QuizHandler.QUIZ_START;
+import static com.whiskels.telegram.bot.handler.QuizHandler.*;
 import static com.whiskels.telegram.util.TelegramUtil.createInlineKeyboardButton;
 import static com.whiskels.telegram.util.TelegramUtil.createMessageTemplate;
 
@@ -50,9 +50,11 @@ public class RegistrationHandler implements Handler {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         List<InlineKeyboardButton> inlineKeyboardButtonsRowOne = List.of(
-                createInlineKeyboardButton("Начать ознакомление", QUIZ_START));
+                createInlineKeyboardButton("Изучить скальпинг", LEARNING_TRIVIA));
+        List<InlineKeyboardButton> inlineKeyboardButtonsRowTwo = List.of(createInlineKeyboardButton("Начать торговать", CONTACT_MANAGER));
+        List<InlineKeyboardButton> inlineKeyboardButtonsRowThree = List.of(createInlineKeyboardButton("Пройти квиз", QUIZ_START));
 
-        inlineKeyboardMarkup.setKeyboard(List.of(inlineKeyboardButtonsRowOne));
+        inlineKeyboardMarkup.setKeyboard(List.of(inlineKeyboardButtonsRowOne, inlineKeyboardButtonsRowTwo, inlineKeyboardButtonsRowThree));
 
         SendMessage sm = createMessageTemplate(user);
         sm.setText(String.format(

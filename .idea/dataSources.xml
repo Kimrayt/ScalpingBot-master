@@ -15,5 +15,12 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/Scalping</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="scalpingdb@dpg-cecevi94reb9mgflf0h0-a.frankfurt-postgres.render.com" uuid="7b0e8fcb-c210-4705-96d3-374209890f07">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://dpg-cecevi94reb9mgflf0h0-a.frankfurt-postgres.render.com:5432/scalpingdb</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

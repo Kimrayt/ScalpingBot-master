@@ -31,20 +31,24 @@ public class QuizHandler implements Handler {
     public static final String QUIZ_CORRECT = "/quiz_correct";
     public static final String QUIZ_INCORRECT = "/quiz_incorrect";
     public static final String QUIZ_START = "/quiz_start";
-    public static int currentQuestion = 0;
+
+    public static final String LEARNING_TRIVIA = "/learning_trivia";
+
+    public static final String CONTACT_MANAGER = "/contact_manager";
+    public  int currentQuestion = 0;
+    boolean changeStates = true;
     // Answer options
     private ArrayList<String> OPTIONS = new ArrayList<>(Arrays.asList("Далее", "Далее", "Далее", "Далее"));
 
     private final JpaUserRepository userRepository;
-    private final JpaQuestionRepository questionRepository;
 
     public QuizHandler(JpaUserRepository userRepository, JpaQuestionRepository questionRepository) {
         this.userRepository = userRepository;
-        this.questionRepository = questionRepository;
     }
 
     @Override
     public List<PartialBotApiMethod<? extends Serializable>> handle(User user, String message) throws SQLException {
+        if(user.getBotState() == State.PLAYING_QUIZ){
         if (message.startsWith(QUIZ_CORRECT)) {
             // action performed on callback with correct answer
             return correctAnswer(user, message);
@@ -54,7 +58,14 @@ public class QuizHandler implements Handler {
         } else {
             return startNewQuiz(user);
         }
-    }
+        }
+        else if (user.getBotState() == State.LEARNING_TRIVIA){
+            return startNewTrivia(user);
+        }
+        else {
+            return managerContact(user);
+        }
+        }
 
     private List<PartialBotApiMethod<? extends Serializable>> correctAnswer(User user, String message) throws SQLException {
         log.info("correct");
@@ -87,7 +98,7 @@ public class QuizHandler implements Handler {
 
         inlineKeyboardMarkup.setKeyboard(List.of(inlineKeyboardButtonsRowOne));
         SendMessage sm = createMessageTemplate(user);
-        sm.setText(String.format("Неверно!%nВы заработали *%d* баллов!", currentScore));
+        sm.setText(String.format("Неверно\\!%nВы заработали *%d* баллов\\!", currentScore));
         sm.setReplyMarkup(inlineKeyboardMarkup);
         return List.of(sm);
     }
@@ -98,11 +109,34 @@ public class QuizHandler implements Handler {
 
         return nextQuestion(user);
     }
+    private List<PartialBotApiMethod<? extends Serializable>> startNewTrivia(User user) throws SQLException {
+        user.setBotState(State.LEARNING_TRIVIA);
+        userRepository.save(user);
+
+        return nextQuestion(user);
+    }
+    private List<PartialBotApiMethod<? extends Serializable>> managerContact(User user) throws SQLException {
+        user.setBotState(State.CONTACT_MANAGER);
+        userRepository.save(user);
+
+        return nextQuestion(user);
+    }
 
     private List<PartialBotApiMethod<? extends Serializable>> nextQuestion(User user) throws SQLException {
+
+        if (user.getBotState() == State.PLAYING_QUIZ & changeStates){
+            currentQuestion = 1;
+            changeStates = false;
+        }
+        else if (user.getBotState() == State.CONTACT_MANAGER){
+            currentQuestion = 12;
+        }
+        else if (user.getBotState() == State.LEARNING_TRIVIA){
+            currentQuestion = 1;
+        }
         Connection con= null;
         try {
-            con = DriverManager.getConnection("jdbc:postgresql://ec2-176-34-215-248.eu-west-1.compute.amazonaws.com:5432/dfl2b8qerhh71p","bnxoafccsirgwj","7fb3596cea18f7a17a73ebdadc6b2a05ba634022cf38022d41ae7522b37c542b");
+            con = DriverManager.getConnection("jdbc:postgresql://dpg-cecevi94reb9mgflf0h0-a.frankfurt-postgres.render.com:5432/scalpingdb","xcriticalmarketingtgadmin","4Lyc84CFBa1LxZANZ4z7JgfJu7LR68OV");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -218,6 +252,6 @@ public class QuizHandler implements Handler {
 
     @Override
     public List<String> operatedCallBackQuery() {
-        return List.of(QUIZ_START, QUIZ_CORRECT, QUIZ_INCORRECT);
+        return List.of(LEARNING_TRIVIA,QUIZ_START ,CONTACT_MANAGER , QUIZ_CORRECT, QUIZ_INCORRECT);
     }
 }
